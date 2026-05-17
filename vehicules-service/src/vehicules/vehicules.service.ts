@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Vehicle } from './entities/vehicle.entity';
@@ -26,6 +26,15 @@ export class VehiculesService {
   }
 
   async create(input: CreateVehicleInput): Promise<Vehicle> {
+    // ← Vérification immatriculation unique
+    const existing = await this.vehicleRepo.findOne({
+      where: { immatriculation: input.immatriculation }
+    });
+    if (existing) {
+      throw new ConflictException(
+        `Un véhicule avec l'immatriculation "${input.immatriculation}" existe déjà`
+      );
+    }
     const vehicle = this.vehicleRepo.create(input);
     return this.vehicleRepo.save(vehicle);
   }
