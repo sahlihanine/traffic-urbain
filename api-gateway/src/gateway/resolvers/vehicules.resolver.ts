@@ -1,14 +1,4 @@
-import {
-  Resolver,
-  Query,
-  Mutation,
-  Args,
-  ObjectType,
-  Field,
-  ID,
-  Float,
-  InputType,
-} from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ObjectType, Field, ID, Float, InputType } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { callService } from '../helpers/http.helper';
 import { SERVICES } from '../../config/services.config';
@@ -54,46 +44,31 @@ export class VehiculesGatewayResolver {
   @Query(() => [VehicleType])
   @UseGuards(GqlAuthGuard)
   async vehicles(): Promise<VehicleType[]> {
-    const data = await callService(
-      SERVICES.VEHICULES,
-      `
+    const data = await callService(SERVICES.VEHICULES, `
       query { vehicles { id immatriculation marque modele type actif } }
-    `,
-    );
+    `);
     return data.vehicles;
   }
 
   @Query(() => VehicleType)
   //@UseGuards(GqlAuthGuard)
-  async vehicle(
-    @Args('id', { type: () => ID }) id: string,
-  ): Promise<VehicleType> {
-    const data = await callService(
-      SERVICES.VEHICULES,
-      `
+  async vehicle(@Args('id', { type: () => ID }) id: string): Promise<VehicleType> {
+    const data = await callService(SERVICES.VEHICULES, `
       query Vehicle($id: ID!) {
         vehicle(id: $id) { id immatriculation marque modele type actif }
       }
-    `,
-      { id },
-    );
+    `, { id });
     return data.vehicle;
   }
 
   @Mutation(() => VehicleType)
   @UseGuards(GqlAuthGuard)
-  async createVehicle(
-    @Args('input') input: CreateVehicleInput,
-  ): Promise<VehicleType> {
-    const data = await callService(
-      SERVICES.VEHICULES,
-      `
+  async createVehicle(@Args('input') input: CreateVehicleInput): Promise<VehicleType> {
+    const data = await callService(SERVICES.VEHICULES, `
       mutation CreateVehicle($input: CreateVehicleInput!) {
         createVehicle(input: $input) { id immatriculation marque modele type actif }
       }
-    `,
-      { input },
-    );
+    `, { input });
     return data.createVehicle;
   }
 
@@ -103,17 +78,13 @@ export class VehiculesGatewayResolver {
     @Args('vehicleId', { type: () => ID }) vehicleId: string,
     @Args('input') input: GpsInput,
   ): Promise<GpsPositionType> {
-    const data = await callService(
-      SERVICES.VEHICULES,
-      `
+    const data = await callService(SERVICES.VEHICULES, `
       mutation AddGps($vehicleId: ID!, $input: GpsInput!) {
         addGpsPosition(vehicleId: $vehicleId, input: $input) {
           id latitude longitude vitesse timestamp vehicleId
         }
       }
-    `,
-      { vehicleId, input },
-    );
+    `, { vehicleId, input });
     return data.addGpsPosition;
   }
 }
