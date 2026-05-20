@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: traffic-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    environment:
+      - PORT=3000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=auth_db
+      - JWT_SECRET=super_secret_key_123
+    ports:
+      - "3001:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  vehicules-service:
+    build: ./vehicules-service
+    container_name: vehicules-service
+    environment:
+      - PORT=3000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=vehicules_db
+    ports:
+      - "3002:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  trafic-service:
+    build: ./trafic-service
+    container_name: trafic-service
+    environment:
+      - PORT=3000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=trafic_db
+    ports:
+      - "3003:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  incidents-service:
+    build: ./incidents-service
+    container_name: incidents-service
+    environment:
+      - PORT=3000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=incidents_db
+    ports:
+      - "3004:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  notifications-service:
+    build: ./notifications-service
+    container_name: notifications-service
+    environment:
+      - PORT=3000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=notifications_db
+    ports:
+      - "3005:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    environment:
+      - PORT=3000
+      - JWT_SECRET=super_secret_key_123
+      - AUTH_SERVICE_URL=http://auth-service:3000/graphql
+      - VEHICULES_SERVICE_URL=http://vehicules-service:3000/graphql
+      - TRAFIC_SERVICE_URL=http://trafic-service:3000/graphql
+      - INCIDENTS_SERVICE_URL=http://incidents-service:3000/graphql
+      - NOTIFICATIONS_SERVICE_URL=http://notifications-service:3000/graphql
+    ports:
+      - "4000:3000"
+    depends_on:
+      - auth-service
+      - vehicules-service
+      - trafic-service
+      - incidents-service
+      - notifications-service
+
+  frontend:
+    build: ./frontend
+    container_name: traffic-frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:4000/graphql
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+
+volumes:
+  postgres_data:
