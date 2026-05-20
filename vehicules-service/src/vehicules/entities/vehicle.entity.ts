@@ -10,7 +10,7 @@ export class Vehicle {
   id: string;
 
   @Field()
-  @Column()
+  @Column({ unique: true }) // ← unique au niveau DB
   immatriculation: string;
 
   @Field()
@@ -23,7 +23,7 @@ export class Vehicle {
 
   @Field()
   @Column()
-  type: string; // VOITURE | CAMION | MOTO | BUS
+  type: string;
 
   @Field()
   @Column({ default: true })
