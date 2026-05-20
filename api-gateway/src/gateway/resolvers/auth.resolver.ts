@@ -33,38 +33,29 @@ class LoginInput {
 @Resolver()
 export class AuthGatewayResolver {
   @Mutation(() => AuthResponseType)
-  async register(
-    @Args('input') input: RegisterInput,
-  ): Promise<AuthResponseType> {
-    const data = await callService(
-      SERVICES.AUTH,
-      `
+  async register(@Args('input') input: RegisterInput): Promise<AuthResponseType> {
+    const data = await callService(SERVICES.AUTH, `
       mutation Register($input: RegisterInput!) {
         register(input: $input) {
           token
           user { id email role createdAt }
         }
       }
-    `,
-      { input },
-    );
+    `, { input });
     return data.register;
   }
 
   @Mutation(() => AuthResponseType)
   async login(@Args('input') input: LoginInput): Promise<AuthResponseType> {
-    const data = await callService(
-      SERVICES.AUTH,
-      `
+    const data = await callService(SERVICES.AUTH, `
       mutation Login($input: LoginInput!) {
         login(input: $input) {
           token
           user { id email role createdAt }
         }
       }
-    `,
-      { input },
-    );
+    `, { input });
     return data.login;
   }
 }
+

@@ -1,15 +1,4 @@
-import {
-  Resolver,
-  Query,
-  Mutation,
-  Args,
-  ObjectType,
-  Field,
-  ID,
-  Float,
-  Int,
-  InputType,
-} from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ObjectType, Field, ID, Float, Int, InputType } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { callService } from '../helpers/http.helper';
 import { SERVICES } from '../../config/services.config';
@@ -47,58 +36,40 @@ export class TraficGatewayResolver {
   @Query(() => [TrafficZoneType])
   @UseGuards(GqlAuthGuard)
   async zones(): Promise<TrafficZoneType[]> {
-    const data = await callService(
-      SERVICES.TRAFIC,
-      `
+    const data = await callService(SERVICES.TRAFIC, `
       query { zones { id nom latMin latMax lonMin lonMax nombreVehicules niveauTrafic } }
-    `,
-    );
+    `);
     return data.zones;
   }
 
   @Query(() => [TrafficZoneType])
   @UseGuards(GqlAuthGuard)
   async zonesCongestionnees(): Promise<TrafficZoneType[]> {
-    const data = await callService(
-      SERVICES.TRAFIC,
-      `
+    const data = await callService(SERVICES.TRAFIC, `
       query { zonesCongestionnees { id nom nombreVehicules niveauTrafic } }
-    `,
-    );
+    `);
     return data.zonesCongestionnees;
   }
 
   @Mutation(() => TrafficZoneType)
   @UseGuards(GqlAuthGuard)
-  async creerZone(
-    @Args('input') input: CreateZoneInput,
-  ): Promise<TrafficZoneType> {
-    const data = await callService(
-      SERVICES.TRAFIC,
-      `
+  async creerZone(@Args('input') input: CreateZoneInput): Promise<TrafficZoneType> {
+    const data = await callService(SERVICES.TRAFIC, `
       mutation CreerZone($input: CreateZoneInput!) {
         creerZone(input: $input) { id nom niveauTrafic nombreVehicules }
       }
-    `,
-      { input },
-    );
+    `, { input });
     return data.creerZone;
   }
 
   @Mutation(() => TrafficZoneType)
   @UseGuards(GqlAuthGuard)
-  async updateDensite(
-    @Args('input') input: UpdateDensiteInput,
-  ): Promise<TrafficZoneType> {
-    const data = await callService(
-      SERVICES.TRAFIC,
-      `
+  async updateDensite(@Args('input') input: UpdateDensiteInput): Promise<TrafficZoneType> {
+    const data = await callService(SERVICES.TRAFIC, `
       mutation UpdateDensite($input: UpdateDensiteInput!) {
         updateDensite(input: $input) { id nom nombreVehicules niveauTrafic }
       }
-    `,
-      { input },
-    );
+    `, { input });
     return data.updateDensite;
   }
 }
