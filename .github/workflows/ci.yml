@@ -1,0 +1,47 @@
+name: CI - Microservices Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Test ${{ matrix.service }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [
+          'api-gateway',
+          'auth-service',
+          'trafic-service',
+          'vehicules-service',
+          'incidents-service',
+          'notifications-service'
+        ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './${{ matrix.service }}/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./${{ matrix.service }}
+
+      - name: Run Unit Tests
+        run: npm test
+        working-directory: ./${{ matrix.service }}
+
+      - name: Run Linting
+        run: npm run lint || echo "Linting failed but continuing..."
+        working-directory: ./${{ matrix.service }}

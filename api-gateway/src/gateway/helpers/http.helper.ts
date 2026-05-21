@@ -14,9 +14,8 @@ export async function callService(url: string, query: string, variables?: any) {
 
     return response.data.data;
   } catch (error: any) {
-    // ← Si c'est déjà une erreur qu'on a lancée, on la retransmet
-    if (error.message && !error.message.includes('Service error')) {
-      throw new Error(error.message);
+    if (error.message && error.message.includes('Service error')) {
+      throw error;
     }
     throw new Error(`Service error: ${error.message}`);
   }
