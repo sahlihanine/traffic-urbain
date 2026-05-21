@@ -14,3 +14,26 @@ export const GET_INCIDENTS = gql`
     }
   }
 `;
+
+export const DECLARER_INCIDENT = gql`
+  mutation DeclarerIncident($input: CreateIncidentInput!) {
+    declarerIncident(input: $input) {
+      id
+      type
+      statut
+      description
+      createdAt
+    }
+  }
+`;
+
+export const MODIFIER_STATUT = gql`
+  mutation ModifierStatut($input: UpdateStatutInput!) {
+    modifierStatutIncident(input: $input) {
+      id
+      type
+      statut
+      updatedAt
+    }
+  }
+`;
