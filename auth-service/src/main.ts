@@ -5,7 +5,11 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(process.env.PORT || 3001);
-  console.log('Auth Service running on port 3001');
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+  console.log(`Auth Service is running on: http://localhost:${port}/graphql`);
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
