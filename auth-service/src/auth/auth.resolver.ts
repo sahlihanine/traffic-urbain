@@ -1,5 +1,4 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
-import { UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterInput } from './dto/register.input';
 import { LoginInput } from './dto/login.input';
@@ -20,8 +19,8 @@ export class AuthResolver {
     return this.authService.login(input);
   }
 
-  @Query(() => User)
-  async me() {
+  @Query(() => User, { nullable: true })
+  me() {
     return null; // à compléter avec le guard JWT plus tard
   }
 }

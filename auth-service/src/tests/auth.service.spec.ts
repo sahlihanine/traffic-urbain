@@ -8,11 +8,10 @@ import * as bcrypt from 'bcrypt';
 describe('AuthService', () => {
   let service: AuthService;
   let repo: any;
-  let jwt: any;
 
   const mockRepo = {
-    create: jest.fn().mockImplementation(dto => dto),
-    save: jest.fn().mockImplementation(user => Promise.resolve({ id: '1', ...user })),
+    create: jest.fn().mockImplementation((dto) => ({ id: '1', ...dto })),
+    save: jest.fn().mockImplementation((user) => Promise.resolve(user)),
     findOne: jest.fn(),
   };
 
@@ -31,12 +30,16 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     repo = module.get(getRepositoryToken(User));
-    jwt = module.get(JwtService);
   });
 
   it('should register a user', async () => {
-    const input = { email: 'test@test.com', password: 'password123', nom: 'Test', role: 'USER' as any };
-    const result = await service.register(input as any);
+    const input = {
+      email: 'test@test.com',
+      password: 'password123',
+      nom: 'Test',
+      role: 'USER' as any,
+    };
+    const result = await service.register(input);
 
     expect(result.token).toBe('mock_token');
     expect(result.user.email).toBe(input.email);
@@ -46,8 +49,12 @@ describe('AuthService', () => {
   it('should login a user', async () => {
     const password = 'password123';
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = { email: 'test@test.com', password: hashedPassword, role: 'USER' };
-    
+    const user = {
+      email: 'test@test.com',
+      password: hashedPassword,
+      role: 'USER',
+    };
+
     repo.findOne.mockResolvedValue(user);
 
     const result = await service.login({ email: 'test@test.com', password });
@@ -57,7 +64,12 @@ describe('AuthService', () => {
   });
 
   it('should throw UnauthorizedException for invalid password', async () => {
-    repo.findOne.mockResolvedValue({ email: 'test@test.com', password: 'wrong' });
-    await expect(service.login({ email: 'test@test.com', password: 'any' })).rejects.toThrow();
+    repo.findOne.mockResolvedValue({
+      email: 'test@test.com',
+      password: 'wrong',
+    });
+    await expect(
+      service.login({ email: 'test@test.com', password: 'any' }),
+    ).rejects.toThrow();
   });
 });
