@@ -3,7 +3,7 @@ import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:4000/graphql',
+  uri: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/graphql',
 });
 
 const authLink = setContext((_, { headers }) => {
@@ -19,9 +19,10 @@ const authLink = setContext((_, { headers }) => {
 });
 
 // ← Intercepte les erreurs globalement sans les throw
-const errorLink = onError(({ graphQLErrors, networkError }) => {
+const errorLink = onError((error: any) => {
+  const { graphQLErrors, networkError } = error;
   if (graphQLErrors) {
-    graphQLErrors.forEach(({ message }) => {
+    graphQLErrors.forEach(({ message }: any) => {
       console.log('GraphQL Error:', message);
     });
   }
