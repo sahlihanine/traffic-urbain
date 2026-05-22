@@ -12,8 +12,10 @@ describe('IncidentsService', () => {
   const mockRepo = {
     find: jest.fn(),
     findOne: jest.fn(),
-    create: jest.fn().mockImplementation(dto => dto),
-    save: jest.fn().mockImplementation(i => Promise.resolve({ id: 'i1', ...i })),
+    create: jest.fn().mockImplementation((dto) => dto),
+    save: jest
+      .fn()
+      .mockImplementation((i) => Promise.resolve({ id: 'i1', ...i })),
   };
 
   beforeEach(async () => {
@@ -29,7 +31,12 @@ describe('IncidentsService', () => {
   });
 
   it('should declare an incident', async () => {
-    const input = { type: TypeIncident.ACCIDENT, description: 'Accident grave', latitude: 48.8, longitude: 2.3 };
+    const input = {
+      type: TypeIncident.ACCIDENT,
+      description: 'Accident grave',
+      latitude: 48.8,
+      longitude: 2.3,
+    };
     const result = await service.declarer(input);
     expect(result.statut).toBe(StatutIncident.SIGNALE);
     expect(repo.save).toHaveBeenCalled();
@@ -39,7 +46,10 @@ describe('IncidentsService', () => {
     const incident = { id: 'i1', statut: StatutIncident.SIGNALE };
     repo.findOne.mockResolvedValue(incident);
 
-    const result = await service.updateStatut({ id: 'i1', statut: StatutIncident.RESOLU });
+    const result = await service.updateStatut({
+      id: 'i1',
+      statut: StatutIncident.RESOLU,
+    });
     expect(result.statut).toBe(StatutIncident.RESOLU);
     expect(repo.save).toHaveBeenCalled();
   });

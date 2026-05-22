@@ -15,7 +15,11 @@ describe('HttpHelper', () => {
 
     const result = await callService(url, query);
     expect(result).toEqual({ test: 'success' });
-    expect(mockedAxios.post).toHaveBeenCalledWith(url, { query, variables: undefined }, expect.any(Object));
+    expect(mockedAxios.post).toHaveBeenCalledWith(
+      url,
+      { query, variables: undefined },
+      expect.any(Object),
+    );
   });
 
   it('should throw error if response contains errors', async () => {
@@ -29,6 +33,8 @@ describe('HttpHelper', () => {
   it('should throw service error on network failure', async () => {
     mockedAxios.post.mockRejectedValue(new Error('Network Error'));
 
-    await expect(callService(url, query)).rejects.toThrow('Service error: Network Error');
+    await expect(callService(url, query)).rejects.toThrow(
+      'Service error: Network Error',
+    );
   });
 });

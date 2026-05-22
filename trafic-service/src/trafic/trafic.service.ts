@@ -56,11 +56,7 @@ export class TraficService {
   }
 
   // Vérifie si coordonnées GPS sont dans une zone
-  estDansZone(
-    latitude: number,
-    longitude: number,
-    zone: TrafficZone,
-  ): boolean {
+  estDansZone(latitude: number, longitude: number, zone: TrafficZone): boolean {
     return (
       latitude >= zone.latMin &&
       latitude <= zone.latMax &&

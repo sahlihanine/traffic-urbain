@@ -10,8 +10,10 @@ describe('NotificationsService', () => {
   const mockRepo = {
     find: jest.fn(),
     findOne: jest.fn(),
-    create: jest.fn().mockImplementation(dto => dto),
-    save: jest.fn().mockImplementation(n => Promise.resolve({ id: 'n1', ...n })),
+    create: jest.fn().mockImplementation((dto) => dto),
+    save: jest
+      .fn()
+      .mockImplementation((n) => Promise.resolve({ id: 'n1', ...n })),
     update: jest.fn().mockResolvedValue({ affected: 1 }),
     count: jest.fn().mockResolvedValue(5),
   };
@@ -29,7 +31,11 @@ describe('NotificationsService', () => {
   });
 
   it('should send a notification', async () => {
-    const input = { titre: 'Alerte', message: 'Embouteillage', destinataireId: 'u1' };
+    const input = {
+      titre: 'Alerte',
+      message: 'Embouteillage',
+      destinataireId: 'u1',
+    };
     const result = await service.envoyer(input);
     expect(result.lue).toBe(false);
     expect(repo.save).toHaveBeenCalled();

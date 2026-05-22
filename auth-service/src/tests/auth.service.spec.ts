@@ -4,19 +4,23 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../auth/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-
 import { Repository } from 'typeorm';
 import { Role } from '../auth/enums/role.enum';
+import { AuthResponse } from '../auth/dto/auth-response.dto';
 
 describe('AuthService', () => {
   let service: AuthService;
   let repo: Repository<User>;
 
   const mockRepo = {
-    create: jest.fn().mockImplementation((dto) => ({ id: '1', ...dto })),
+    create: jest
+      .fn()
+      .mockImplementation((dto: any) => ({ id: '1', ...dto }) as User),
     save: jest
       .fn()
-      .mockImplementation((user) => Promise.resolve({ id: '1', ...user })),
+      .mockImplementation((user: any) =>
+        Promise.resolve({ id: '1', ...user } as User),
+      ),
     findOne: jest.fn(),
   };
 
@@ -42,13 +46,13 @@ describe('AuthService', () => {
       email: 'test@test.com',
       password: 'password123',
       nom: 'Test',
-      role: Role.OPERATEUR,
+      role: Role.OPERATOR,
     };
-    const result = await service.register(input);
+    const result: AuthResponse = await service.register(input);
 
     expect(result.token).toBe('mock_token');
     expect(result.user.email).toBe(input.email);
-    /* eslint-disable @typescript-eslint/unbound-method */
+    /* eslint-disable-next-line @typescript-eslint/unbound-method */
     expect(repo.save).toHaveBeenCalled();
   });
 
@@ -59,12 +63,15 @@ describe('AuthService', () => {
       id: '1',
       email: 'test@test.com',
       password: hashedPassword,
-      role: Role.OPERATEUR,
+      role: Role.OPERATOR,
     } as User;
 
     (repo.findOne as jest.Mock).mockResolvedValue(user);
 
-    const result = await service.login({ email: 'test@test.com', password });
+    const result: AuthResponse = await service.login({
+      email: 'test@test.com',
+      password,
+    });
 
     expect(result.token).toBe('mock_token');
     expect(result.user.email).toBe(user.email);
