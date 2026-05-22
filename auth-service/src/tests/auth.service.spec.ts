@@ -5,13 +5,18 @@ import { User } from '../auth/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
+import { Repository } from 'typeorm';
+import { Role } from '../auth/enums/role.enum';
+
 describe('AuthService', () => {
   let service: AuthService;
-  let repo: any;
+  let repo: Repository<User>;
 
   const mockRepo = {
     create: jest.fn().mockImplementation((dto) => ({ id: '1', ...dto })),
-    save: jest.fn().mockImplementation((user) => Promise.resolve(user)),
+    save: jest
+      .fn()
+      .mockImplementation((user) => Promise.resolve({ id: '1', ...user })),
     findOne: jest.fn(),
   };
 
@@ -29,7 +34,7 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    repo = module.get(getRepositoryToken(User));
+    repo = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
   it('should register a user', async () => {
@@ -37,12 +42,13 @@ describe('AuthService', () => {
       email: 'test@test.com',
       password: 'password123',
       nom: 'Test',
-      role: 'USER' as any,
+      role: Role.OPERATEUR,
     };
     const result = await service.register(input);
 
     expect(result.token).toBe('mock_token');
     expect(result.user.email).toBe(input.email);
+    /* eslint-disable @typescript-eslint/unbound-method */
     expect(repo.save).toHaveBeenCalled();
   });
 
@@ -50,12 +56,13 @@ describe('AuthService', () => {
     const password = 'password123';
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = {
+      id: '1',
       email: 'test@test.com',
       password: hashedPassword,
-      role: 'USER',
-    };
+      role: Role.OPERATEUR,
+    } as User;
 
-    repo.findOne.mockResolvedValue(user);
+    (repo.findOne as jest.Mock).mockResolvedValue(user);
 
     const result = await service.login({ email: 'test@test.com', password });
 
@@ -64,7 +71,8 @@ describe('AuthService', () => {
   });
 
   it('should throw UnauthorizedException for invalid password', async () => {
-    repo.findOne.mockResolvedValue({
+    (repo.findOne as jest.Mock).mockResolvedValue({
+      id: '1',
       email: 'test@test.com',
       password: 'wrong',
     });
