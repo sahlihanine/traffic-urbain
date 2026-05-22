@@ -89,6 +89,7 @@ export default function IncidentsPage() {
   const [showModal, setShowModal] = useState(false);
   const [error, setError]         = useState('');
   const [isAdmin, setIsAdmin]     = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ email: string; role: string } | null>(null);
   const [form, setForm] = useState({
     type: 'ACCIDENT',
     description: '',
@@ -97,12 +98,16 @@ export default function IncidentsPage() {
     declarePar: '',
   });
 
-  // ── Lire le rôle depuis localStorage ──
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (userData) {
       const parsed = JSON.parse(userData);
       setIsAdmin(parsed?.role === 'ADMIN');
+      setCurrentUser(parsed);
+      setForm(prev => ({
+        ...prev,
+        declarePar: parsed?.email || parsed?.id || 'Utilisateur'
+      }));
     }
   }, []);
 
@@ -111,7 +116,13 @@ export default function IncidentsPage() {
   const [declarerIncident, { loading: declaring }] = useMutation(DECLARER_INCIDENT, {
     onCompleted: () => {
       setShowModal(false);
-      setForm({ type: 'ACCIDENT', description: '', latitude: '', longitude: '', declarePar: '' });
+      setForm({ 
+        type: 'ACCIDENT', 
+        description: '', 
+        latitude: '', 
+        longitude: '', 
+        declarePar: currentUser?.email || currentUser?.id || 'Utilisateur' 
+      });
       refetch();
     },
     onError: (err: any) => {
@@ -167,7 +178,6 @@ export default function IncidentsPage() {
   return (
     <DashboardLayout title="Incidents" subtitle="Gestion des incidents routiers">
 
-      {/* Top bar */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           {FILTRES.map((f) => (
@@ -185,31 +195,20 @@ export default function IncidentsPage() {
           ))}
         </div>
 
-        {/* Bouton visible uniquement pour ADMIN */}
-        {isAdmin && (
-          <button
-            onClick={() => { setError(''); setShowModal(true); }}
-            className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Déclarer un incident
-          </button>
-        )}
-
-        {/* Message informatif pour OPERATOR */}
-        {!isAdmin && (
-          <div className="flex items-center gap-2 text-slate-500 text-xs bg-slate-800/50 border border-slate-700/50 px-4 py-2.5 rounded-xl">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Lecture seule — seul un ADMIN peut déclarer
-          </div>
-        )}
+        <button
+          onClick={() => { 
+            setError(''); 
+            setShowModal(true); 
+          }}
+          className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Déclarer un incident
+        </button>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {STAT_CARDS.map(({ statut, bg, text, dot }) => (
           <div key={statut} className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 flex items-center gap-4">
@@ -224,7 +223,6 @@ export default function IncidentsPage() {
         ))}
       </div>
 
-      {/* Table */}
       <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-700/50">
           <h3 className="text-white font-semibold">
@@ -247,7 +245,6 @@ export default function IncidentsPage() {
                 <th className="text-left text-slate-400 text-xs font-medium px-6 py-3">GPS</th>
                 <th className="text-left text-slate-400 text-xs font-medium px-6 py-3">DÉCLARÉ PAR</th>
                 <th className="text-left text-slate-400 text-xs font-medium px-6 py-3">DATE</th>
-                {/* Colonne Actions visible uniquement pour ADMIN */}
                 {isAdmin && (
                   <th className="text-left text-slate-400 text-xs font-medium px-6 py-3">ACTIONS</th>
                 )}
@@ -276,7 +273,6 @@ export default function IncidentsPage() {
                     </td>
                     <td className="px-6 py-4 text-slate-300 text-sm">{incident.declarePar}</td>
                     <td className="px-6 py-4 text-slate-400 text-xs">{formatDate(incident.createdAt)}</td>
-                    {/* Cellule Actions uniquement pour ADMIN */}
                     {isAdmin && (
                       <td className="px-6 py-4">
                         {next && nextLabel ? (
@@ -306,8 +302,7 @@ export default function IncidentsPage() {
         )}
       </div>
 
-      {/* Modal Déclarer incident — ADMIN seulement */}
-      {showModal && isAdmin && (
+      {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <div className="flex items-center justify-between mb-6">
@@ -385,6 +380,9 @@ export default function IncidentsPage() {
                   placeholder="Nom ou ID de l'opérateur"
                   className="w-full bg-slate-900/50 border border-slate-600/50 text-white placeholder-slate-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 />
+                <p className="text-slate-500 text-xs mt-1">
+                  {currentUser?.role === 'ADMIN' ? 'Admin' : 'Opérateur'} connecté
+                </p>
               </div>
 
               <div className="flex gap-3 mt-6">
