@@ -1,4 +1,14 @@
-import { Resolver, Query, Mutation, Args, ObjectType, Field, ID, Float, InputType } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ObjectType,
+  Field,
+  ID,
+  Float,
+  InputType,
+} from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { callService } from '../helpers/http.helper';
 import { SERVICES } from '../../config/services.config';
@@ -37,31 +47,46 @@ export class IncidentsGatewayResolver {
   @Query(() => [IncidentType])
   @UseGuards(GqlAuthGuard)
   async incidents(): Promise<IncidentType[]> {
-    const data = await callService(SERVICES.INCIDENTS, `
+    const data = await callService(
+      SERVICES.INCIDENTS,
+      `
       query { incidents { id type statut description latitude longitude declarePar createdAt } }
-    `);
+    `,
+    );
     return data.incidents;
   }
 
   @Mutation(() => IncidentType)
   @UseGuards(GqlAuthGuard)
-  async declarerIncident(@Args('input') input: CreateIncidentInput): Promise<IncidentType> {
-    const data = await callService(SERVICES.INCIDENTS, `
+  async declarerIncident(
+    @Args('input') input: CreateIncidentInput,
+  ): Promise<IncidentType> {
+    const data = await callService(
+      SERVICES.INCIDENTS,
+      `
       mutation DeclarerIncident($input: CreateIncidentInput!) {
         declarerIncident(input: $input) { id type statut description createdAt }
       }
-    `, { input });
+    `,
+      { input },
+    );
     return data.declarerIncident;
   }
 
   @Mutation(() => IncidentType)
   @UseGuards(GqlAuthGuard)
-  async modifierStatutIncident(@Args('input') input: UpdateStatutInput): Promise<IncidentType> {
-    const data = await callService(SERVICES.INCIDENTS, `
+  async modifierStatutIncident(
+    @Args('input') input: UpdateStatutInput,
+  ): Promise<IncidentType> {
+    const data = await callService(
+      SERVICES.INCIDENTS,
+      `
       mutation ModifierStatut($input: UpdateStatutInput!) {
         modifierStatutIncident(input: $input) { id type statut updatedAt }
       }
-    `, { input });
+    `,
+      { input },
+    );
     return data.modifierStatutIncident;
   }
 }

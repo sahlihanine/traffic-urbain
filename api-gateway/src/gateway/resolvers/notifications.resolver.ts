@@ -1,4 +1,14 @@
-import { Resolver, Query, Mutation, Args, ObjectType, Field, ID, Int, InputType } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ObjectType,
+  Field,
+  ID,
+  Int,
+  InputType,
+} from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { callService } from '../helpers/http.helper';
 import { SERVICES } from '../../config/services.config';
@@ -30,13 +40,17 @@ export class NotificationsGatewayResolver {
   async notificationsByDestinataire(
     @Args('destinataireId') destinataireId: string,
   ): Promise<NotificationType[]> {
-    const data = await callService(SERVICES.NOTIFICATIONS, `
+    const data = await callService(
+      SERVICES.NOTIFICATIONS,
+      `
       query NotifsByDest($destinataireId: String!) {
         notificationsByDestinataire(destinataireId: $destinataireId) {
           id titre message lue type createdAt
         }
       }
-    `, { destinataireId });
+    `,
+      { destinataireId },
+    );
     return data.notificationsByDestinataire;
   }
 
@@ -45,11 +59,15 @@ export class NotificationsGatewayResolver {
   async nombreNonLues(
     @Args('destinataireId') destinataireId: string,
   ): Promise<number> {
-    const data = await callService(SERVICES.NOTIFICATIONS, `
+    const data = await callService(
+      SERVICES.NOTIFICATIONS,
+      `
       query NombreNonLues($destinataireId: String!) {
         nombreNonLues(destinataireId: $destinataireId)
       }
-    `, { destinataireId });
+    `,
+      { destinataireId },
+    );
     return data.nombreNonLues;
   }
 
@@ -58,11 +76,15 @@ export class NotificationsGatewayResolver {
   async envoyerNotification(
     @Args('input') input: CreateNotificationInput,
   ): Promise<NotificationType> {
-    const data = await callService(SERVICES.NOTIFICATIONS, `
+    const data = await callService(
+      SERVICES.NOTIFICATIONS,
+      `
       mutation EnvoyerNotif($input: CreateNotificationInput!) {
         envoyerNotification(input: $input) { id titre message lue type createdAt }
       }
-    `, { input });
+    `,
+      { input },
+    );
     return data.envoyerNotification;
   }
 
@@ -71,11 +93,15 @@ export class NotificationsGatewayResolver {
   async marquerNotificationLue(
     @Args('id', { type: () => ID }) id: string,
   ): Promise<NotificationType> {
-    const data = await callService(SERVICES.NOTIFICATIONS, `
+    const data = await callService(
+      SERVICES.NOTIFICATIONS,
+      `
       mutation MarquerLue($id: ID!) {
         marquerNotificationLue(id: $id) { id titre lue }
       }
-    `, { id });
+    `,
+      { id },
+    );
     return data.marquerNotificationLue;
   }
 }

@@ -8,18 +8,22 @@ export class CreateZoneInput {
   nom: string;
 
   @Field(() => Float)
-  @Min(-90) @Max(90)
+  @Min(-90)
+  @Max(90)
   latMin: number;
 
   @Field(() => Float)
-  @Min(-90) @Max(90)
+  @Min(-90)
+  @Max(90)
   latMax: number;
 
   @Field(() => Float)
-  @Min(-180) @Max(180)
+  @Min(-180)
+  @Max(180)
   lonMin: number;
 
   @Field(() => Float)
-  @Min(-180) @Max(180)
+  @Min(-180)
+  @Max(180)
   lonMax: number;
 }

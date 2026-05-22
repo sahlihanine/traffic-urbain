@@ -2,13 +2,18 @@ import axios from 'axios';
 
 export async function callService(url: string, query: string, variables?: any) {
   try {
-    const response = await axios.post(url, { query, variables }, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    const response = await axios.post(
+      url,
+      { query, variables },
+      {
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
 
     if (response.data.errors) {
       // ← Transmet le vrai message d'erreur du microservice
-      const errorMessage = response.data.errors[0]?.message || 'Erreur inconnue';
+      const errorMessage =
+        response.data.errors[0]?.message || 'Erreur inconnue';
       throw new Error(errorMessage);
     }
 

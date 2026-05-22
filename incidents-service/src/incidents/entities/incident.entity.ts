@@ -1,6 +1,9 @@
 import {
-  Entity, Column, PrimaryGeneratedColumn,
-  CreateDateColumn, UpdateDateColumn
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
 import { TypeIncident } from '../enums/type-incident.enum';
@@ -18,7 +21,11 @@ export class Incident {
   type: TypeIncident;
 
   @Field()
-  @Column({ type: 'enum', enum: StatutIncident, default: StatutIncident.SIGNALE })
+  @Column({
+    type: 'enum',
+    enum: StatutIncident,
+    default: StatutIncident.SIGNALE,
+  })
   statut: StatutIncident;
 
   @Field()

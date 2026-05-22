@@ -1,4 +1,12 @@
-import { Resolver, Query, Mutation, Args, ResolveField, Parent, ID } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ResolveField,
+  Parent,
+  ID,
+} from '@nestjs/graphql';
 import { VehiculesService } from './vehicules.service';
 import { Vehicle } from './entities/vehicle.entity';
 import { GpsPosition } from './entities/gps-position.entity';

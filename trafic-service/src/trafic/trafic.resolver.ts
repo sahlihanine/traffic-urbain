@@ -14,9 +14,7 @@ export class TraficResolver {
   }
 
   @Query(() => TrafficZone)
-  async zone(
-    @Args('id', { type: () => ID }) id: string,
-  ): Promise<TrafficZone> {
+  async zone(@Args('id', { type: () => ID }) id: string): Promise<TrafficZone> {
     return this.traficService.findOne(id);
   }
 
@@ -26,16 +24,12 @@ export class TraficResolver {
   }
 
   @Query(() => [TrafficZone])
-  async zonesByNiveau(
-    @Args('niveau') niveau: string,
-  ): Promise<TrafficZone[]> {
+  async zonesByNiveau(@Args('niveau') niveau: string): Promise<TrafficZone[]> {
     return this.traficService.getZonesByNiveau(niveau);
   }
 
   @Mutation(() => TrafficZone)
-  async creerZone(
-    @Args('input') input: CreateZoneInput,
-  ): Promise<TrafficZone> {
+  async creerZone(@Args('input') input: CreateZoneInput): Promise<TrafficZone> {
     return this.traficService.creerZone(input);
   }
 
